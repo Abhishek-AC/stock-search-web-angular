@@ -122,15 +122,11 @@ app.get('/api/details', async (req, res) => {
     
     var currentTimestamp = new Date();
     var changeMarketStatus = (currentTimestamp - new Date(response.data[0].timestamp))/1000;
-    var dateObjectMonth = currentTimestamp.getMonth() + 1;
 
-    if (dateObjectMonth < 10)
-        dateObjectMonth = "0" + dateObjectMonth;
-
-    var currentMinutes = currentTimestamp.getMinutes() < 10 ? '0' + currentTimestamp.getMinutes() : currentTimestamp.getMinutes();
-    var currentHours = currentTimestamp.getHours() < 10 ? '0' + currentTimestamp.getHours() : currentTimestamp.getHours();
-    var currentSeconds = currentTimestamp.getSeconds() < 10 ? '0' + currentTimestamp.getSeconds() : currentTimestamp.getSeconds();
-    var date = currentTimestamp.getFullYear() + "-" + dateObjectMonth + "-" + currentTimestamp.getDate() 
+    var currentMinutes = currentTimestamp.getMinutes().toString().padStart(2, '0');
+    var currentHours = currentTimestamp.getHours().toString().padStart(2, '0');
+    var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
+    var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0') 
         + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
 
     var temp = {
@@ -154,10 +150,8 @@ app.get('/api/details', async (req, res) => {
       temp.marketStatus = 'close';
       temp.lastTimestamp = date;
       var chartDate = new Date(response.data[0].timestamp);
-      let dateObjectMonth = chartDate.getMonth() + 1;
-      if (dateObjectMonth < 10)
-          dateObjectMonth = "0" + dateObjectMonth;
-      startDate = chartDate.getFullYear() + "-" + dateObjectMonth + "-" + chartDate.getDate();
+
+      startDate = chartDate.getFullYear() + "-" + (chartDate.getMonth() + 1).toString().padStart(2, '0') + "-" + chartDate.getDate().toString().padStart(2, '0');
       startDateObject = chartDate;
     }
     else {
@@ -167,7 +161,7 @@ app.get('/api/details', async (req, res) => {
       summary.askSize = response.data[0].askSize == null ? '-' : response.data[0].askSize;
       summary.bidSize = response.data[0].bidSize == null ? '-' : response.data[0].bidSize;
       summary.bidPrice = response.data[0].bidPrice == null ? '-': response.data[0].bidPrice;
-      startDate = currentTimestamp.getFullYear() + "-" + dateObjectMonth + "-" + currentTimestamp.getDate();
+      startDate = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + currentTimestamp.getDate().toString().padStart(2, '0');
       startDateObject = currentTimestamp;
     }
     result.details = Object.assign({},result.details, temp)
@@ -222,10 +216,8 @@ app.get('/api/details', async (req, res) => {
     });
   
   var startDateLastTwoYears = new Date(new Date(startDateObject).setFullYear(new Date().getFullYear() - 2));
-  var dateObjectMonth = startDateLastTwoYears.getMonth() + 1;
-    if (dateObjectMonth < 10)
-        dateObjectMonth = "0" + dateObjectMonth;
-  startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + dateObjectMonth + "-" + startDateLastTwoYears.getDate();
+
+  startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
   
   route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate='+ startDate + '&resampleFreq=monthly&token=' + token;
   
