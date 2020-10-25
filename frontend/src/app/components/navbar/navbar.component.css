@@ -1,0 +1,8 @@
+
+
+.nav-link:active, 
+.nav-link:focus {
+    box-shadow: 0 0 0 0.1em;
+    border: none;
+    border-radius: 5px;
+}
