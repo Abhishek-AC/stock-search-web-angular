@@ -89,6 +89,7 @@ depending on the marketStatus open/close summary will contain varied values
 app.get('/api/details', async (req, res) => {
   // AC would like to do something sophiscticated here
   var token = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
+  var newsApiKey = '3a67c2b7713c47cf8e309fd9c1fc2b35';
 
   var ticker = req.query.ticker;
   var route;
@@ -171,7 +172,6 @@ app.get('/api/details', async (req, res) => {
     console.log(error);
   });
 
-  var newsApiKey = '3a67c2b7713c47cf8e309fd9c1fc2b35';
   var newsArticles = []
 
   route = 'https://newsapi.org/v2/everything?apiKey=' + newsApiKey + '&q=' + ticker;
@@ -247,7 +247,30 @@ app.get('/api/details', async (req, res) => {
   });
 });
 
-
+app.get('/api/autocomplete', async (req, res) => {
+  var q = req.query.q;
+  var token = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
+  var result = [];
+  route = 'https://api.tiingo.com/tiingo/utilities/search?query=' + q + '&token=' + token ;
+  await axios.get(route)
+  .then((response) => {
+    
+    response = response.data;
+    for (var i = 0; i < response.length; ++i) {
+      if (response[i].name != null)
+        result.push({
+          'name': response[i].name,
+          'ticker': response[i].ticker
+        })
+    }
+  },
+  (error) => {
+    console.log(error);
+  });
+  res.send({
+    'result': result
+  });
+});
 // Expose endpoints to port 3000
 app.listen(3000, () => {
   console.log("Listening to port 3000");
