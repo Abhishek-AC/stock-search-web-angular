@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, startWith, tap } from 'rxjs/operators';
+import { AutocompleteService } from 'src/app/services/autocomplete.service';
+import { Router } from '@angular/router';
 
-export interface State {
-  flag: string;
+export interface AutoComplete {
   name: string;
-  population: string;
+  ticker: string;
 }
-
 
 @Component({
   selector: 'app-search',
@@ -20,46 +20,52 @@ export interface State {
 export class SearchComponent implements OnInit {
 
   stateCtrl = new FormControl();
-  filteredStates: Observable<State[]>;
+  filteredStates: Observable<AutoComplete[]>;
+  
+  autoComplete : Object;
+  isLoading = false;
 
-  states: State[] = [
-    {
-      name: 'Arkansas',
-      population: '2.978M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Arkansas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arkansas.svg'
-    },
-    {
-      name: 'California',
-      population: '39.14M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_California.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg'
-    },
-    {
-      name: 'Florida',
-      population: '20.27M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Florida.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg'
-    },
-    {
-      name: 'Texas',
-      population: '27.47M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Texas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg'
-    }
+  constructor(private _http: AutocompleteService, private _router: Router) {}
+  
+  
+  autoCompletes: AutoComplete[] = [
   ];
 
   ngOnInit() {
+    this.stateCtrl.valueChanges
+    .pipe(
+      debounceTime(250),
+      distinctUntilChanged(),
+      tap(() => this.isLoading = true)
+    )
+    .subscribe(ticker => {
+      if (ticker != "") {
+        this._http.getAutoCompleteResults(ticker).subscribe((data) => {
+          this.autoComplete = data as any[];
+          this.isLoading = false;
+        })
+      }
+    })
+  
     this.filteredStates = this.stateCtrl.valueChanges
       .pipe(
         startWith(''),
-        map(state => state ? this._filterStates(state) : this.states.slice())
+        map(value => typeof value === 'string' ? value: value.name),
+        map(name => name ? this._filterStates(name) : this.autoCompletes.slice())
       );
   }
-
-  private _filterStates(value: string): State[] {
+  displayFn(autoComplete: AutoComplete): string {
+    return autoComplete && autoComplete.ticker ? autoComplete.ticker : '';
+  }
+  private _filterStates(value: string): AutoComplete[] {
     const filterValue = value.toLowerCase();
 
-    return this.states.filter(state => state.name.toLowerCase().indexOf(filterValue) === 0);
+    return this.autoCompletes.filter(state => state.name.toLowerCase().indexOf(filterValue) === 0);
   }
+
+  getDetails() {
+    
+    this._router.navigate(['/details', this.stateCtrl.value.ticker])
+  }
+
 }
