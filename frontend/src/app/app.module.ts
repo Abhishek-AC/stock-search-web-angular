@@ -13,8 +13,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations'; 
-
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
+import { HttpClientModule } from '@angular/common/http';
+import { DetailsComponent } from './components/details/details.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -23,7 +26,8 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
     FooterComponent,
     PortfolioComponent,
     WatchlistComponent,
-    SearchComponent
+    SearchComponent,
+    DetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +39,9 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
     MatFormFieldModule,
     MatInputModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule
+    HttpClientModule,
+    MatProgressSpinnerModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
