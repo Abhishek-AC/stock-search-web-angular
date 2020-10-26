@@ -1,6 +1,26 @@
 .search {
     margin-top: 10%;
-    font-size: 50px;
+    font-size: 58px;
     font-weight: bolder;
     margin-bottom: 4%;
+}
+.form-control {
+    border: 2px solid #7852FF !important;
+}
+.form-control:focus {
+    border-color: none !important;
+    box-shadow: none !important;
+}
+
+.search-form {
+    margin-left: 40%;
+}
+
+.mat-autocomplete-panel {
+    margin-left: 18px;
+    margin-right: 40px;
+    margin-top: -8px;
+}
+.fa {
+    color: #7852FF
 }
