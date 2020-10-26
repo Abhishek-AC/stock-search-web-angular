@@ -7,6 +7,9 @@ const _ = require('lodash');
 // import axios 
 const axios = require("axios");
 
+// import cors
+var cors = require('cors');
+
 // Import body parser
 const bodyParser = require('body-parser');
 const { last } = require('lodash');
@@ -14,6 +17,8 @@ const { response } = require('express');
 
 // Initialize express
 const app = express();
+// Use cors 
+app.use(cors());
 
 // Use the body parser middleware to allow 
 // express to recognize JSON requests
