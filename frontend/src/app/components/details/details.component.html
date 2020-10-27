@@ -4,24 +4,36 @@
 <mat-tab-group mat-stretch-tabs>
 
     <mat-tab label="Summary">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 col-sm-12" style = "background-color: aqua; height: 10px">
-                    
-                </div>
-                <div class="col-md-6 col-sm-12">
+        <ng-template matTabContent>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" style="background-color: aqua; height: 10px">
+
+                    </div>
+                    <div class="col-md-6 col-sm-12">
                         <!-- highcharts here  -->
+
+                        <div id="summaryChart" style="display: block; width: 100%; ">
+                            <div [chart]="stock"></div>
+                        </div>
+
+                    </div>
                 </div>
+
             </div>
-
-        </div>
+        </ng-template>
     </mat-tab>
 
-    <mat-tab label="Summary">
+    <mat-tab label="Top News">
 
     </mat-tab>
 
-    <mat-tab label="Summary">
+    <mat-tab label="Charts">
+        <ng-template matTabContent>
+            <div id="summaryChart" style="display: block; width: 100%; height: 100%;">
+                <div [chart]="stock1"></div>
+            </div>
+        </ng-template>
 
     </mat-tab>
 
