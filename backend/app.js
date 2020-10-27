@@ -99,6 +99,7 @@ app.get('/api/details', async (req, res) => {
   var route;
   var result = {};
   var details = {};
+  var incorrectTicker = true;
   const monthNames = ["", "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
   ];
@@ -106,7 +107,6 @@ app.get('/api/details', async (req, res) => {
   route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '?token=' + token;
 
   var startDate, description, startDateObject;
-
 
   await axios.get(route)
     .then((response) => {
@@ -116,144 +116,151 @@ app.get('/api/details', async (req, res) => {
         'exchangeCode': response.data.exchangeCode
       };
       result.details = details
-
       startDate = response.data.startDate;
       description = response.data.description;
-
+  
     }, (error) => {
-      console.log(error);
+      result['error'] = "Incorrect Ticker Symbol";
+      incorrectTicker = false;
     });
 
-  route = 'https://api.tiingo.com/iex?tickers=' + ticker + '&token=' + token;
-  await axios.get(route)
-    .then((response) => {
-      var change = response.data[0].last - response.data[0].prevClose;
+  if (incorrectTicker) {
+    route = 'https://api.tiingo.com/iex?tickers=' + ticker + '&token=' + token;
+    await axios.get(route)
+      .then((response) => {
+        var change = response.data[0].last - response.data[0].prevClose;
 
-      var currentTimestamp = new Date();
-      var changeMarketStatus = (currentTimestamp - new Date(response.data[0].timestamp)) / 1000;
+        var currentTimestamp = new Date();
+        var changeMarketStatus = (currentTimestamp - new Date(response.data[0].timestamp)) / 1000;
 
-      var currentMinutes = currentTimestamp.getMinutes().toString().padStart(2, '0');
-      var currentHours = currentTimestamp.getHours().toString().padStart(2, '0');
-      var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
-      var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0')
-        + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
+        var currentMinutes = currentTimestamp.getMinutes().toString().padStart(2, '0');
+        var currentHours = currentTimestamp.getHours().toString().padStart(2, '0');
+        var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
+        var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0')
+          + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
+        
+        var lastTimestamp = new Date(response.data[0].timestamp);
+        var lastMinutes = lastTimestamp.getMinutes().toString().padStart(2, '0');
+        var lastHours = lastTimestamp.getHours().toString().padStart(2, '0');
+        var lastSeconds = lastTimestamp.getSeconds().toString().padStart(2, '0');
+        var lastDate = lastTimestamp.getFullYear() + "-" + (lastTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (lastTimestamp.getDate()).toString().padStart(2, '0')
+          + " " + lastHours + ":" + lastMinutes + ":" + lastSeconds;
 
-      var temp = {
-        'last': response.data[0].last,
-        'change': parseFloat(change.toFixed(2)),
-        'changePercentage': parseFloat(((change * 100) / (response.data[0].prevClose)).toFixed(2)),
-        'currentTimestamp': date,
-      }
-
-      var summary = {
-        'highPrice': response.data[0].high,
-        'lowPrice': response.data[0].low,
-        'openPrice': response.data[0].open,
-        'prevClose': response.data[0].prev,
-        'volume': response.data[0].volume,
-        'startDate': startDate,
-        'description': description
-      };
-
-      if (changeMarketStatus > 60) {
-        temp.marketStatus = 'close';
-        temp.lastTimestamp = date;
-        var chartDate = new Date(response.data[0].timestamp);
-
-        startDate = chartDate.getFullYear() + "-" + (chartDate.getMonth() + 1).toString().padStart(2, '0') + "-" + chartDate.getDate().toString().padStart(2, '0');
-        startDateObject = chartDate;
-      }
-      else {
-        temp.marketStatus = 'open';
-        summary.midPrice = response.data[0].mid == null ? '-' : response.data[0].mid;
-        summary.askPrice = response.data[0].askPrice == null ? '-' : response.data[0].askPrice;
-        summary.askSize = response.data[0].askSize == null ? '-' : response.data[0].askSize;
-        summary.bidSize = response.data[0].bidSize == null ? '-' : response.data[0].bidSize;
-        summary.bidPrice = response.data[0].bidPrice == null ? '-' : response.data[0].bidPrice;
-        startDate = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + currentTimestamp.getDate().toString().padStart(2, '0');
-        startDateObject = currentTimestamp;
-      }
-      result.details = Object.assign({}, result.details, temp)
-      result.summary = summary;
-    },
-      (error) => {
-        console.log(error);
-      });
-
-  var newsArticles = []
-
-  route = 'https://newsapi.org/v2/everything?apiKey=' + newsApiKey + '&q=' + ticker;
-  await axios.get(route)
-    .then((response) => {
-      var newsDump = response.data.articles;
-      for (var i = 0; i < newsDump.length; ++i) {
-        if (newsDump[i].title != null && newsDump[i].url != null && newsDump[i].urlToImage && newsDump[i].publishedAt != null) {
-          let publishedDate = monthNames[newsDump[i].publishedAt.slice(5,7)] + " " + newsDump[i].publishedAt.slice(8,10) + ", " + newsDump[i].publishedAt.slice(0,4);
-          var newsData = {
-            'title': newsDump[i].title,
-            'url': newsDump[i].url,
-            'urlToImage': newsDump[i].urlToImage,
-            'publishedAt': publishedDate,
-            'source': newsDump[i].source.name,
-            'description': newsDump[i].description
-          }
-          newsArticles.push(newsData)
+        var temp = {
+          'last': response.data[0].last,
+          'change': parseFloat(change.toFixed(2)),
+          'changePercentage': parseFloat(((change * 100) / (response.data[0].prevClose)).toFixed(2)),
+          'currentTimestamp': date,
         }
-      }
-      result.newsArticles = newsArticles
-    },
-      (error) => {
-        console.log(error);
-      });
+        var summary = {
+          'highPrice': response.data[0].high,
+          'lowPrice': response.data[0].low,
+          'openPrice': response.data[0].open,
+          'prevClose': response.data[0].prev,
+          'volume': response.data[0].volume,
+          'startDate': startDate,
+          'description': description
+        };
 
-  route = 'https://api.tiingo.com/iex/' + ticker + '/prices?startDate=' + startDate + '&resampleFreq=4min&token=' + token;
-  await axios.get(route)
-    .then((response) => {
-      var date_closing = [];
-      response = response.data;
-      for (var i = 0; i < response.length; i++) {
-        var year = parseInt(response[i].date.slice(0, 4))
-        var month = parseInt(response[i].date.slice(5, 7))
-        var day = parseInt(response[i].date.slice(8, 10))
-        var utcDate = Date.UTC(year, month - 1, day)
-        date_closing.push([utcDate, response[i].close])
-      }
-      result.summaryTabCharts = date_closing;
-    },
-      (error) => {
-        console.log(error);
-      });
+        if (changeMarketStatus > 60) {
+          temp.marketStatus = 'close';
+          temp.lastTimestamp = lastDate;
+          
+          var chartDate = new Date(response.data[0].timestamp);
 
-  var startDateLastTwoYears = new Date(new Date(startDateObject).setFullYear(new Date().getFullYear() - 2));
+          startDate = chartDate.getFullYear() + "-" + (chartDate.getMonth() + 1).toString().padStart(2, '0') + "-" + chartDate.getDate().toString().padStart(2, '0');
+          startDateObject = chartDate;
+        }
+        else {
+          temp.marketStatus = 'open';
+          summary.midPrice = response.data[0].mid == null ? '-' : response.data[0].mid;
+          summary.askPrice = response.data[0].askPrice == null ? '-' : response.data[0].askPrice;
+          summary.askSize = response.data[0].askSize == null ? '-' : response.data[0].askSize;
+          summary.bidSize = response.data[0].bidSize == null ? '-' : response.data[0].bidSize;
+          summary.bidPrice = response.data[0].bidPrice == null ? '-' : response.data[0].bidPrice;
+          startDate = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + currentTimestamp.getDate().toString().padStart(2, '0');
+          startDateObject = currentTimestamp;
+        }
+        result.details = Object.assign({}, result.details, temp)
+        result.summary = summary;
+      },
+        (error) => {
+          console.log(error);
+        });
 
-  startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
+    var newsArticles = []
 
-  route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=monthly&token=' + token;
+    route = 'https://newsapi.org/v2/everything?apiKey=' + newsApiKey + '&q=' + ticker;
+    await axios.get(route)
+      .then((response) => {
+        var newsDump = response.data.articles;
+        for (var i = 0; i < newsDump.length; ++i) {
+          if (newsDump[i].title != null && newsDump[i].url != null && newsDump[i].urlToImage && newsDump[i].publishedAt != null) {
+            let publishedDate = monthNames[newsDump[i].publishedAt.slice(5,7)] + " " + newsDump[i].publishedAt.slice(8,10) + ", " + newsDump[i].publishedAt.slice(0,4);
+            var newsData = {
+              'title': newsDump[i].title,
+              'url': newsDump[i].url,
+              'urlToImage': newsDump[i].urlToImage,
+              'publishedAt': publishedDate,
+              'source': newsDump[i].source.name,
+              'description': newsDump[i].description
+            }
+            newsArticles.push(newsData)
+          }
+        }
+        result.newsArticles = newsArticles
+      },
+        (error) => {
+          console.log(error);
+        });
+    route = 'https://api.tiingo.com/iex/' + ticker + '/prices?startDate=' + startDate + '&resampleFreq=4min&token=' + token;
+    
 
-  await axios.get(route)
-    .then((response) => {
-      var historicalData = response.data;
-      var sma_volume = [];
-      var sma_ohlc = [];
-      for (var i = 0; i < historicalData.length; i++) {
-        var year = parseInt(historicalData[i].date.slice(0, 4))
-        var month = parseInt(historicalData[i].date.slice(5, 7))
-        var day = parseInt(historicalData[i].date.slice(8, 10))
-        var utcDate = Date.UTC(year, month - 1, day)
-        sma_ohlc.push([utcDate, historicalData[i].open, historicalData[i].high, historicalData[i].low, historicalData[i].close]);
-        sma_volume.push([utcDate, historicalData[i].volume]);
-      }
+    await axios.get(route)
+      .then((response) => {
+        var date_closing = [];
+        response = response.data;
+        for (var i = 0; i < response.length; i++) {
+          var utcDate = new Date(response[i].date);
+          utcDate = utcDate.getTime();
+          date_closing.push([utcDate, response[i].close])
+        }
+        result.summaryTabCharts = date_closing;
+      },
+        (error) => {
+          console.log(error);
+        });
 
-      result.sma_volume = sma_volume;
-      result.sma_ohlc = sma_ohlc;
-    },
-      (error) => {
-        console.log(error);
-      });
+    var startDateLastTwoYears = new Date(new Date(startDateObject).setFullYear(new Date().getFullYear() - 2));
 
-  res.send({
-    'result': result
-  });
+    startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
+
+  
+    route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=daily&token=' + token;
+    
+    await axios.get(route)
+      .then((response) => {
+        var historicalData = response.data;
+        var sma_volume = [];
+        var sma_ohlc = [];
+        for (var i = 0; i < historicalData.length; i++) {
+          var utcDate = new Date(historicalData[i].date);
+          utcDate = utcDate.getTime();
+          sma_ohlc.push([utcDate, historicalData[i].open, historicalData[i].high, historicalData[i].low, historicalData[i].close]);
+          sma_volume.push([utcDate, historicalData[i].volume]);
+        }  
+        result.sma_volume = sma_volume;
+        result.sma_ohlc = sma_ohlc;
+      },
+        (error) => {
+          console.log(error);
+        });
+
+    res.status(200).send(result);
+  }
+  else {
+    res.status(400).send(result);
+  }
 });
 
 app.get('/api/autocomplete', async (req, res) => {
