@@ -156,7 +156,7 @@ app.get('/api/details', async (req, res) => {
           'highPrice': response.data[0].high,
           'lowPrice': response.data[0].low,
           'openPrice': response.data[0].open,
-          'prevClose': response.data[0].prev,
+          'prevClose': response.data[0].prevClose,
           'volume': response.data[0].volume,
           'startDate': startDate,
           'description': description
@@ -259,7 +259,7 @@ app.get('/api/details', async (req, res) => {
     res.status(200).send(result);
   }
   else {
-    res.status(400).send(result);
+    res.status(200).send(result);
   }
 });
 
@@ -283,9 +283,7 @@ app.get('/api/autocomplete', async (req, res) => {
       (error) => {
         console.log(error);
       });
-  res.send({
-    'result': result
-  });
+  res.send(result);
 });
 // Expose endpoints to port 3000
 app.listen(3000, () => {
