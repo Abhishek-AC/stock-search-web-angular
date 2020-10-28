@@ -1,40 +1,253 @@
-<div class="container">
-
+<div style="margin: 3% auto">
+    <ng-container *ngIf="isLoading">
+        <mat-spinner diameter="50" style="margin: 0 auto;"></mat-spinner>
+    </ng-container>
 </div>
-<mat-tab-group mat-stretch-tabs>
 
-    <mat-tab label="Summary">
-        <ng-template matTabContent>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12" style="background-color: aqua; height: 10px">
+<ng-container *ngIf="!isLoading">
+    <ng-container *ngIf="tickerInvalid">
+        <div class="alert-danger alert text-center text-dark">
+            No results found. Please enter valid Ticker.
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!tickerInvalid">
+        <!-- Details -->
+        <div class="row test_row">
+            <div class="col-6 text-left test_col">
+                <div>
+                    <span class="ticker-name">
+                        {{ details["ticker"] }}
+                    </span>
+                    <span class="star-icon align-top">
+                        <a href=" ">
+                            <svg width="1.25em" height="1.25em" viewBox="0 0 16 16" class="bi bi-star"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.523-3.356c.329-.314.158-.888-.283-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767l-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288l1.847-3.658 1.846 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.564.564 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                            </svg>
+                        </a>
+                    </span>
+                </div>
+            </div>
 
+            <div class="col-6 text-right test_col">
+                <div [ngClass]="(details['change'] >= 0)?'text-success':'text-danger'">
+                    <span class="last-price">
+                        {{details["last"]}}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row test_row mt-2 mt-md-0">
+            <div class="col test_col">
+                <div class="company-name text-muted">
+                    {{ details["name"] }}
+                </div>
+            </div>
+            <div class="col text-right test_col">
+                <div [ngClass]="(details['change'] >= 0)?'text-success':'text-danger'">
+                    <span class="change">
+                        <span>
+                            <svg *ngIf="(details['change'] >= 0)" width="0.8em" height="0.8em" viewBox="0 0 16 16"
+                                class="bi bi-caret-up-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+                            </svg>
+
+                            <svg *ngIf="(details['change'] < 0)" width="0.8em" height="0.8em" viewBox="0 0 16 16"
+                                class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                            </svg>
+                        </span>
+                        {{ details["change"] }} ({{ details["changePercentage"] }}%)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row test_row mt-2 mt-md-2">
+            <div class="col test_col">
+                <div class="exchange-code text-secondary">
+                    {{ details["exchangeCode"] }}
+                </div>
+            </div>
+            <div class="col text-right test_col">
+                <div class="text-secondary">
+                    {{ details["currentTimestamp"] }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row test_row mt-1 mt-md-1">
+
+            <div class="col text-left test_col">
+                <button type="button" class="buy-button btn btn-success">Buy</button>
+            </div>
+        </div>
+
+        <div class="row align-items-center test_row mt-3 mt-md-1">
+            <div class="col d-flex justify-content-center test_col">
+                <div *ngIf="(details['marketStatus'] == 'Open');then openBlock else closeBlock"></div>
+                <ng-template #openBlock>
+                    <div class="market-open alert alert-success text-center">
+                        Market is {{details["marketStatus"]}}
                     </div>
-                    <div class="col-md-6 col-sm-12">
-                        <!-- highcharts here  -->
+                </ng-template>
+                <ng-template #closeBlock>
+                    <div class="market-close alert alert-danger text-center">
+                        Market {{details["marketStatus"]}}d on {{ details["lastTimestamp"] }}
+                    </div>
+                </ng-template>
+            </div>
+        </div>
 
-                        <div id="summaryChart" style="display: block; width: 100%; ">
-                            <div [chart]="stock"></div>
+        <!-- Details End -->
+
+        <mat-tab-group mat-stretch-tabs>
+            <mat-tab label="Summary">
+                <ng-template matTabContent>
+                    <div class="container">
+                        <div class="row">
+
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12" style="padding-top: 32px;">
+                                <div class="row text-dark">
+                                    <div class="col-6">
+                                        <!-- <div > -->
+                                        <table style="margin-left: auto; margin-right: auto;">
+                                            <tr>
+                                                <td>High Price:</td>
+                                                <td>{{summary.highPrice}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Low Price:</td>
+                                                <td>{{summary.lowPrice}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Open Price:</td>
+                                                <td>{{summary.openPrice}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Prev. Close:</td>
+                                                <td>{{summary.prevClose}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Volume:</td>
+                                                <td>{{summary.volume}}</td>
+                                            </tr>
+                                        </table>
+                                        <!-- </div> -->
+                                    </div>
+                                    <div class="col-6">
+                                        <ng-container *ngIf="(details['marketStatus'] == 'open')">
+                                            <!-- <div style="padding-top: 10%;"> -->
+                                            <table style="margin-left: auto; margin-right: auto;">
+                                                <tr>
+                                                    <td>Mid Price:</td>
+                                                    <td>{{summary.midPrice}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Ask Price:</td>
+                                                    <td>{{summary.askPrice}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Ask Size:</td>
+                                                    <td>{{summary.askSize}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Bid Price:</td>
+                                                    <td>{{summary.bidPrice}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Bid Size:</td>
+                                                    <td>{{summary.bidSize}}</td>
+                                                </tr>
+                                            </table>
+                                            <!-- </div> -->
+                                        </ng-container>
+                                    </div>
+                                </div>
+                                <br><br>
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <h2>Company's Description</h2>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 4%;">
+                                    Start Date: {{summary.startDate}}
+                                </div>
+                                <div class="row" style="margin-top: 2%;">
+                                    {{summary.description}}
 
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12" style="padding-top: 32px;">
+
+                                <div id="summaryChart" style="display: block; width: 100%; ">
+                                    <highcharts-chart style="display: block;" [Highcharts]="Highcharts"
+                                        [options]="chartOptionsSummaryChart" [constructorType]="'stockChart'">
+                                    </highcharts-chart>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </mat-tab>
+
+            <mat-tab label="Top News">
+
+                <div class="container">
+
+                    <div *ngFor="let i of stockNews; index as index; let even = even">
+                        <div *ngIf="even" class="row test_row">
+                            <div class="col-sm-6 mt-4 mt-md-4 test_col">
+                                <div class="card card-body card-header rounded h-100">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <img class="img-thumbnail border-0 p-0" [src]="stockNews[index].urlToImage">
+                                        </div>
+                                        <div class="col-md-8">
+                                            {{stockNews[index].title}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div *ngIf="(index < stockNews.length-1)" class="col-sm-6 mt-4 mt-md-4 test_col">
+                                <div class="card card-body card-header rounded h-100">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <img class="img-thumbnail border-0 p-0"
+                                                [src]="stockNews[index+1].urlToImage">
+                                        </div>
+                                        <div class="col-md-8">
+                                            {{stockNews[index+1].title}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-            </div>
-        </ng-template>
-    </mat-tab>
+            </mat-tab>
+            <mat-tab label="Charts">
+                <ng-template matTabContent>
+                    <div>
+                        <highcharts-chart style="display: block;" [Highcharts]="Highcharts"
+                            [options]="chartOptionsSmaVolume" [constructorType]="'stockChart'">
+                        </highcharts-chart>
+                    </div>
 
-    <mat-tab label="Top News">
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
 
-    </mat-tab>
+    </ng-container>
 
-    <mat-tab label="Charts">
-        <ng-template matTabContent>
-            <div id="summaryChart" style="display: block; width: 100%; height: 100%;">
-                <div [chart]="stock1"></div>
-            </div>
-        </ng-template>
-
-    </mat-tab>
-
-</mat-tab-group>
+</ng-container>

@@ -10,6 +10,7 @@ export interface AutoComplete {
   ticker: string;
 }
 
+
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
@@ -21,12 +22,12 @@ export class SearchComponent implements OnInit {
 
   stateCtrl = new FormControl();
   filteredStates: Observable<AutoComplete[]>;
-  
+  enteredTicker: string;
+
   autoComplete : Object;
   isLoading = false;
 
   constructor(private _http: AutocompleteService, private _router: Router) {}
-  
   
   autoCompletes: AutoComplete[] = [
   ];
@@ -64,8 +65,13 @@ export class SearchComponent implements OnInit {
   }
 
   getDetails() {
+    if (this.stateCtrl.value == null) 
+      return;
     
-    this._router.navigate(['/details', this.stateCtrl.value.ticker])
+    this.enteredTicker = this.stateCtrl.value.ticker;
+    if (this.enteredTicker == undefined) {
+      return;
+    } 
+    this._router.navigate(['/details', this.enteredTicker])
   }
-
 }

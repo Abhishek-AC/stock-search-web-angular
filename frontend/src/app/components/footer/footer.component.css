@@ -1,6 +1,6 @@
 #req-footer {
-    bottom: 0;
-    position: absolute;
     background-color: #dddddd;
-    width: 100%
+    width: 100%;
+    bottom: 0;
+    margin-bottom: 0;
 }
