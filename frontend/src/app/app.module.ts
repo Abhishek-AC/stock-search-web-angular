@@ -18,9 +18,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { DetailsComponent } from './components/details/details.component';
 import { MatTabsModule } from '@angular/material/tabs';
-// import { HighchartsChartModule } from 'highcharts-angular';
+import { HighchartsChartModule } from 'highcharts-angular';
 
-import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
 import stock from 'highcharts/modules/stock.src';
 import more from 'highcharts/highcharts-more.src';
 
@@ -53,10 +52,10 @@ export function highchartsModules() {
     HttpClientModule,
     MatProgressSpinnerModule,
     MatTabsModule,
-    ChartModule
+    HighchartsChartModule
   ],
   providers: [
-    { provide: HIGHCHARTS_MODULES, useFactory: highchartsModules } 
+    
   ],
   bootstrap: [AppComponent]
 })
