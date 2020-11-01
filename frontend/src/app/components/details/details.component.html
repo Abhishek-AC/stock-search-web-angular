@@ -19,13 +19,19 @@
                         {{ details["ticker"] }}
                     </span>
                     <span class="star-icon align-top">
-                        <a href=" ">
-                            <svg width="1.25em" height="1.25em" viewBox="0 0 16 16" class="bi bi-star"
+                        <button class = "pl-0" (click) = "onStarClick()" style="border: none; outline: none; background-color: white">
+                            
+                            <svg *ngIf = "!watchlistPresent" width="1.25em" height="1.25em" viewBox="0 0 16 16" class="bi bi-star" 
                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd"
                                     d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.523-3.356c.329-.314.158-.888-.283-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767l-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288l1.847-3.658 1.846 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.564.564 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
                             </svg>
-                        </a>
+
+                            <svg *ngIf="watchlistPresent" width="1.25em" height="1.25em" viewBox="0 0 16 16" class="bi bi-star-fill" fill="#fdd800" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                            </svg>
+                            
+                        </button>
                     </span>
                 </div>
             </div>
@@ -84,7 +90,7 @@
         <div class="row test_row mt-1 mt-md-1">
 
             <div class="col text-left test_col">
-                <button type="button" class="buy-button btn btn-success">Buy</button>
+                <button type="button" class="buy-button btn btn-success" (click)="openBuyModal(buyStocks)">Buy</button>
             </div>
         </div>
 
@@ -206,7 +212,8 @@
                     <div *ngFor="let i of stockNews; index as index; let even = even">
                         <div *ngIf="even" class="row test_row">
                             <div class="col-sm-6 mt-4 mt-md-4 test_col">
-                                <div class="card card-body card-header rounded h-100">
+                                <div class="card card-body card-header rounded h-100"
+                                    (click)="openModal(index,content)">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <img class="img-thumbnail border-0 p-0" [src]="stockNews[index].urlToImage">
@@ -219,7 +226,8 @@
                             </div>
 
                             <div *ngIf="(index < stockNews.length-1)" class="col-sm-6 mt-4 mt-md-4 test_col">
-                                <div class="card card-body card-header rounded h-100">
+                                <div class="card card-body card-header rounded h-100"
+                                    (click)="openModal(index+1,content)">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <img class="img-thumbnail border-0 p-0"
@@ -239,7 +247,7 @@
             <mat-tab label="Charts">
                 <ng-template matTabContent>
                     <div>
-                        <highcharts-chart style="display: block;" [Highcharts]="Highcharts"
+                        <highcharts-chart style="display: block; height: 750px" [Highcharts]="Highcharts"
                             [options]="chartOptionsSmaVolume" [constructorType]="'stockChart'">
                         </highcharts-chart>
                     </div>
@@ -251,3 +259,76 @@
     </ng-container>
 
 </ng-container>
+
+<!-- News Modal -->
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <div>
+            <h1 class="modal-title mb-0 pb-0" id="modal-basic-title">{{current_news["source"]}}</h1>
+            <h4 class="mt-0 mb-1" style="color: #808080">{{current_news["publishedAt"]}}</h4>
+        </div>
+        <button type="button" class="close" aria-label="Close" style="outline: none;" (click)="d('Cross click')">
+            <span aria-hidden="false">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>
+            <h3 class="row mb-0 mt-0 " style="font-weight: 500;">
+                {{current_news["title"]}}
+            </h3>
+            <div innerHtml="{{current_news['description']}}"></div>
+            <div class="here mb-0 mt-0" style="color: #808080">
+                For more details
+                click <a href="{{current_news['url']}}" target="_blank">here</a>
+            </div>
+        </div>
+
+        <div class="row mt-5 ml-0 mr-1"
+            style="height: 100px; width: 100%; border: 1px solid #EDEDED; border-radius: 5px; padding-bottom: 110px;">
+            <div class="container">
+
+                <div class="row" style="font-weight: light;">
+                    <div class="container py-3">
+                        Share
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="container">
+                        <a style="padding: 5px; padding-left: 0;" [attr.href]=" 'https://twitter.com/intent/tweet?text=' + twitter_text" class="twitter-link btn-large"
+                            target="_blank">
+                            <i class="fa fa-twitter fa-3x" aria-hidden="true" style="color: #1da1f2;"></i>
+                        </a>
+        
+                        <a style="padding: 5px;; padding-left: 0;" [attr.href]=" 'http://www.facebook.com/share.php?u=' + current_news['url']" class="twitter-link btn-large"
+                            target="_blank">
+                            <i class="fa fa-facebook-square fa-3x" aria-hidden="true" style="color: #0000FF;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ng-template>
+
+<!-- Modal buy button -->
+<ng-template #buyStocks let-c="close" let-d="dismiss">
+    <div class="modal-header pb-0 mb-0">
+        <h4 class="modal-title" id="modal-basic-title">{{ ticker }}</h4>
+        <button type="button" class="close" aria-label="Close" style="outline: none;" (click)="d('Cross click')">
+            <span aria-hidden="false">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div>Current Price: {{ details["last"] }}</div>
+        <div class="form-inline row pt-1">
+            <label class="col-sm-2 col-form-label" for="numberInputEx">Quantity</label>
+            <input class="form-control ml-1" type="number" [(ngModel)]="quantity" id="numberInputEx" mdbInput>
+        </div>
+    </div>
+    <div class="modal-footer pb-1 pt-1">
+        <div class="mr-auto">Total: {{quantity * details["last"] | number:'1.2-2'}}</div>
+        <button [disabled]="quantity < 1" type="button form-control" class="buy-button btn btn-success"
+            (click)="buyStockFunc()">Buy</button>
+    </div>
+</ng-template>

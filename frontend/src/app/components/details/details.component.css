@@ -61,3 +61,8 @@
     text-decoration: none;
     color: inherit;
 }
+
+.here a:hover {
+    color: #007BFF; 
+    text-decoration: underline;
+}

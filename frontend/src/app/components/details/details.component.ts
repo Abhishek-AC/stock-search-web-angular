@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime } from 'rxjs/operators';
 import { AutocompleteService } from 'src/app/services/autocomplete.service';
+import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import * as Highcharts from "highcharts/highstock";
 import { Options } from "highcharts";
@@ -23,22 +24,33 @@ export class DetailsComponent implements OnInit {
     isLoading: boolean = true;
     tickerInvalid: boolean = false;
     graphColor: string;
+    quantity: number = 0;
+    current_news: Object;
+    twitter_text: string;
+    watchlistPresent: boolean = false;
+    workingModal;
+    summaryTabCharts: number[][];
+    smaVolume: number[][];
+    smaOHLC: number[][];
 
     Highcharts: typeof Highcharts = Highcharts;
 
     chartOptionsSummaryChart: Options = {};
     chartOptionsSmaVolume: Options = {};
-    constructor(private _activatedRouter: ActivatedRoute, private _http: AutocompleteService) {
+    constructor(private _activatedRouter: ActivatedRoute, private _http: AutocompleteService,
+        private config: NgbModalConfig, private modalService: NgbModal) {
         IndicatorsCore(Highcharts);
         IndicatorZigzag(Highcharts);
         vbp(Highcharts);
+        config.backdrop = 'static';
+        config.keyboard = false;
     }
-    summaryTabCharts: number[][];
-    smaVolume: number[][];
-    smaOHLC: number[][];
-
+    
     ngOnInit(): void {
         this.ticker = this._activatedRouter.snapshot.paramMap.get('id');
+        var testWatchList = JSON.parse(localStorage.getItem("Watchlist"));
+        if (testWatchList != null && this.ticker in testWatchList)
+            this.watchlistPresent = true;
         this._http.getAllDetails(this.ticker)
             .pipe(
                 debounceTime(220)
@@ -170,5 +182,77 @@ export class DetailsComponent implements OnInit {
                     }
                 }
             )
+    }
+    openModal(index, content) {
+        this.current_news = this.stockNews[index];
+        this.twitter_text = encodeURIComponent(this.current_news['title']) + '%20' + encodeURIComponent(this.current_news['url']);
+        this.modalService.open(content);
+    }
+    openBuyModal(content) {
+        this.workingModal = this.modalService.open(content);
+    }
+    buyStockFunc() {
+        var portfolioData = JSON.parse(localStorage.getItem("Portfolio"));
+        var stockPurchased: Object = {
+            "companyName": this.details["name"],
+            "totalAmountShares": parseFloat((this.quantity * this.details["last"]).toFixed(2)),
+            "noOfStocks": this.quantity,
+            "avgCostPerShare": this.details["last"]
+        }
+        if (portfolioData == null) {
+            var stockPurchasedTemp: Object = {};
+            stockPurchasedTemp[this.ticker] = stockPurchased;
+            portfolioData = stockPurchasedTemp;
+            localStorage.setItem("Portfolio", JSON.stringify(portfolioData));
+        }
+        else {
+            portfolioData = JSON.parse(localStorage.getItem("Portfolio"));
+            if (portfolioData.hasOwnProperty(this.ticker)) {
+                var previousStockData = portfolioData[this.ticker];
+                previousStockData["noOfStocks"] = parseFloat((previousStockData["noOfStocks"] + stockPurchased["noOfStocks"]).toFixed(2));
+                previousStockData["totalAmountShares"] = parseFloat((previousStockData["totalAmountShares"] + stockPurchased["totalAmountShares"]).toFixed(2));
+                previousStockData["avgCostPerShare"] = parseFloat((previousStockData["totalAmountShares"] / previousStockData["noOfStocks"]).toFixed(2));
+                portfolioData[this.ticker] = previousStockData;
+            }
+            else {
+                portfolioData[this.ticker] = stockPurchased;
+            }
+            localStorage.setItem("Portfolio", JSON.stringify(portfolioData));
+        }
+        this.quantity = 0;
+        this.workingModal.close();
+    }
+
+    checkWatchlist(ticker) {
+        var watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
+        if (watchlistData == null) {
+            this.watchlistPresent = false;
+            localStorage.setItem("Watchlist", JSON.stringify({}));
+            return;
+        }
+        watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
+
+        if (watchlistData.hasOwnProperty(ticker)) {
+            this.watchlistPresent = true;
+            return;
+        }
+        else {
+            this.watchlistPresent = false;
+        }
+    }
+    onStarClick() {
+        this.checkWatchlist(this.ticker);
+        if (!this.watchlistPresent) {
+            var watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
+            watchlistData[this.ticker] = this.details["name"];
+            localStorage.setItem("Watchlist", JSON.stringify(watchlistData));
+            this.watchlistPresent = true;
+        }
+        else {
+            var watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
+            delete watchlistData[this.ticker];
+            localStorage.setItem("Watchlist", JSON.stringify(watchlistData));
+            this.watchlistPresent = false;
+        }
     }
 }
