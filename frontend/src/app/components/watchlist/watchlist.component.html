@@ -1,1 +1,90 @@
-<p>watchlist works!</p>
+<div class="container mt-5 mt-md-5 pl-0 pr-0">
+
+
+
+    <div class="watchlist-text pl-0 pr-0 mb-5 mb-md-3">
+        My Watchlist
+    </div>
+
+    <div>
+        <div *ngIf="isLoading" class="is-loading" style="height: auto;">
+            <mat-spinner diameter=50 style="margin: 75px auto auto auto;">
+            </mat-spinner>
+        </div>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <div class="container pl-0 pr-0 mt-5 mt-md-5">
+
+            <div *ngFor="let item of watchlistLocalStorage | keyvalue;">
+
+                <div class="cursor-type card card-body rounded h-100 mt-3 mt-md-3 pt-0" (click)="navigateToDetails(item.key)">
+                    <div class="row">
+                        <div class="container">
+                            <div class="row test_row" style="float: right;">
+                                <button type="button" class="close" aria-label="Close" style="outline: none;"
+                                    (click)="removeTickerFromWatchList(item.key)">
+                                    <span aria-hidden="false">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="row mt-2 mt-md-2 test_row">
+                                <div class="col-6 text-left test_col">
+                                    <span class="watchlist-text">
+                                        {{ item.key }}
+                                    </span>
+                                </div>
+                                <div class="col-6 text-right test_col">
+                                    <div
+                                        [ngClass]="(watchlistPriceData[item.key]['change'] >= 0) ?'text-success':'text-danger'">
+                                        <span class="last-price">
+                                            {{ watchlistPriceData[item.key]["last"] }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3 mt-md-3 test_row">
+                                <div class="col-6 text-left test_col">
+                                    <span class="company-name">
+                                        {{ watchlistLocalStorage[item.key] }}
+                                    </span>
+                                </div>
+                                <div class="col-6 text-right test_col">
+                                    <div
+                                        [ngClass]="(watchlistPriceData[item.key]['change'] >= 0) ?'text-success':'text-danger'">
+                                        <span class="change">
+                                            <span>
+                                                <svg *ngIf="(watchlistPriceData[item.key]['change'] >= 0)"
+                                                    width="0.8em" height="0.8em" viewBox="0 0 16 16"
+                                                    class="bi bi-caret-up-fill" fill="currentColor"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+                                                </svg>
+
+                                                <svg *ngIf="(watchlistPriceData[item.key]['change'] < 0)"
+                                                    width="0.8em" height="0.8em" viewBox="0 0 16 16"
+                                                    class="bi bi-caret-down-fill" fill="currentColor"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                                </svg>
+                                            </span>
+                                            {{ watchlistPriceData[item.key]["change"] }}
+                                            ({{ watchlistPriceData[item.key]["changePercentage"] }}%)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </ng-container>
+</div>
