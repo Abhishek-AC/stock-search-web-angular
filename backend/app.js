@@ -285,6 +285,41 @@ app.get('/api/autocomplete', async (req, res) => {
       });
   res.send(result);
 });
+
+app.get('/api/watchlist', async(req, res) => {
+
+  var tickers = [];
+  tickers = req.query.q;
+  var token = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
+  var route = 'https://api.tiingo.com/iex/?tickers=';
+  var result = {};
+  if(typeof(tickers) === 'string') {
+    route += tickers + ',' + '&token=' + token;
+  }
+  else {
+    for(var i = 0; i < tickers.length-1; ++i)
+      route += tickers[i] + ','
+    route += tickers[i] + '&token=' + token;
+  }
+  // console.log(route);
+  await axios.get(route)
+    .then((response) => {
+      response = response.data;
+      for (var i = 0; i < response.length; ++i) {
+        var change = response[i].last - response[i].prevClose;
+        result[response[i].ticker] = {
+          'last': response[i].last,
+          'change': parseFloat(change.toFixed(2)),
+          'changePercentage': parseFloat(((change * 100) / (response[i].prevClose)).toFixed(2)),
+        };
+      }
+    },
+      (error) => {
+        console.log(error);
+      });
+  res.status(200).send(result);
+});
+
 // Expose endpoints to port 3000
 app.listen(3000, () => {
   console.log("Listening to port 3000");
