@@ -1,0 +1,13 @@
+.card-ticker{
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.card-subticker{
+    font-weight: 500;
+    font-size: large;
+}
+
+.cursor-type:hover {
+    cursor: pointer;
+}
