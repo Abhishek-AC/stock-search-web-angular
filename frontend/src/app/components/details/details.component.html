@@ -343,7 +343,7 @@
         <div>Current Price: {{ details["last"] }}</div>
         <div class="form-inline row pt-1">
             <label class="col-sm-2 col-form-label" for="numberInputEx">Quantity</label>
-            <input class="form-control ml-1" type="number" [(ngModel)]="quantity" id="numberInputEx" mdbInput>
+            <input class="form-control ml-1" min="0" type="number" [(ngModel)]="quantity" id="numberInputEx" mdbInput>
         </div>
     </div>
     <div class="modal-footer pb-1 pt-1">
