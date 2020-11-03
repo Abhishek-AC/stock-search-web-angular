@@ -66,3 +66,7 @@
     color: #007BFF; 
     text-decoration: underline;
 }
+
+.hover-card:hover {
+    cursor: pointer;
+}

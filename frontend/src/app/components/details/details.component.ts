@@ -32,6 +32,13 @@ export class DetailsComponent implements OnInit {
     summaryTabCharts: number[][];
     smaVolume: number[][];
     smaOHLC: number[][];
+    boughtString: string = '';
+    removedString: string = '';
+    addedWatchlistString: string ='';
+    watchlistString: string = '';
+    buyTimeout;
+    watchlistTimeout;
+    showBuy: boolean = false;
 
     Highcharts: typeof Highcharts = Highcharts;
 
@@ -45,9 +52,12 @@ export class DetailsComponent implements OnInit {
         config.backdrop = 'static';
         config.keyboard = false;
     }
-    
+
     ngOnInit(): void {
         this.ticker = this._activatedRouter.snapshot.paramMap.get('id');
+        this.boughtString = this.ticker + ' bought successfully!';
+        this.addedWatchlistString = this.ticker + ' added to Watchlist.';
+        this.removedString = this.ticker + ' removed from Watchlist.';
         var testWatchList = JSON.parse(localStorage.getItem("Watchlist"));
         if (testWatchList != null && this.ticker in testWatchList)
             this.watchlistPresent = true;
@@ -182,6 +192,9 @@ export class DetailsComponent implements OnInit {
                     }
                 }
             )
+        setInterval(() => {
+            this.updateDetails()
+        }, 15000)
     }
     openModal(index, content) {
         this.current_news = this.stockNews[index];
@@ -192,6 +205,11 @@ export class DetailsComponent implements OnInit {
         this.workingModal = this.modalService.open(content);
     }
     buyStockFunc() {
+        this.showBuy = true;
+        clearTimeout(this.buyTimeout);
+        this.buyTimeout = setTimeout(() => {
+            this.showBuy = false;
+        }, 5000);
         var portfolioData = JSON.parse(localStorage.getItem("Portfolio"));
         var stockPurchased: Object = {
             "companyName": this.details["name"],
@@ -243,16 +261,48 @@ export class DetailsComponent implements OnInit {
     onStarClick() {
         this.checkWatchlist(this.ticker);
         if (!this.watchlistPresent) {
+            this.watchlistString = "add";
+            clearTimeout(this.watchlistTimeout);
+            this.watchlistTimeout = setTimeout(() => {
+                this.watchlistString = "";
+            }, 5000);
             var watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
             watchlistData[this.ticker] = this.details["name"];
             localStorage.setItem("Watchlist", JSON.stringify(watchlistData));
             this.watchlistPresent = true;
         }
         else {
+            this.watchlistString = "remove";
+            clearTimeout(this.watchlistTimeout);
+            this.watchlistTimeout = setTimeout(() => {
+                this.watchlistString = "";
+            }, 5000);
             var watchlistData = JSON.parse(localStorage.getItem("Watchlist"));
             delete watchlistData[this.ticker];
             localStorage.setItem("Watchlist", JSON.stringify(watchlistData));
             this.watchlistPresent = false;
+        }
+    }
+
+    updateDetails() {
+        if (this.details['marketStatus'] == 'open') {
+            this._http.getAllDetailsRepeat(this.ticker)
+                .pipe(
+                    debounceTime(350)
+                )
+                .subscribe(data => {
+                    if ("error" in data) {
+                        this.tickerInvalid = false;
+                    }
+                    else {
+                        console.log('I am repeating after 15 seconds');
+                        this.details = data['details'];
+                        this.summary = data['summary'];
+                        this.summaryTabCharts = data['summaryTabCharts'];
+                        this.graphColor = this.details['change'] >= 0 ? 'green' : 'red';
+                    }
+                }
+                )
         }
     }
 }

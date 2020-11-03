@@ -10,8 +10,28 @@
             No results found. Please enter valid Ticker.
         </div>
     </ng-container>
+    
     <ng-container *ngIf="!tickerInvalid">
         <!-- Details -->
+        <ng-container *ngIf="(watchlistString == 'add')">
+            <ngb-alert class="text-center" type="success" (close)="watchlistString=''">
+                {{ addedWatchlistString }}
+            </ngb-alert>
+        </ng-container>
+
+        <ng-container *ngIf="(watchlistString == 'remove')">
+            <ngb-alert class="text-center" type="danger" (close)="watchlistString=''">
+                {{ removedString }}
+            </ngb-alert>
+        </ng-container>
+
+        <ng-container *ngIf="showBuy">
+            <ngb-alert class="text-center" type="success" (close)="showBuy=false">
+                {{ boughtString }}
+            </ngb-alert>
+        </ng-container>
+
+
         <div class="row test_row">
             <div class="col-6 text-left test_col">
                 <div>
@@ -212,7 +232,7 @@
                     <div *ngFor="let i of stockNews; index as index; let even = even">
                         <div *ngIf="even" class="row test_row">
                             <div class="col-sm-6 mt-4 mt-md-4 test_col">
-                                <div class="card card-body card-header rounded h-100"
+                                <div class="hover-card card card-body card-header rounded h-100"
                                     (click)="openModal(index,content)">
                                     <div class="row">
                                         <div class="col-md-4">
@@ -226,7 +246,7 @@
                             </div>
 
                             <div *ngIf="(index < stockNews.length-1)" class="col-sm-6 mt-4 mt-md-4 test_col">
-                                <div class="card card-body card-header rounded h-100"
+                                <div class="hover-card card card-body card-header rounded h-100"
                                     (click)="openModal(index+1,content)">
                                     <div class="row">
                                         <div class="col-md-4">
