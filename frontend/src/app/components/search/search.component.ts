@@ -46,6 +46,10 @@ export class SearchComponent implements OnInit {
           this.isLoading = false;
         })
       }
+      else {
+        this.autoComplete = []
+        this.isLoading = false;
+      }
     })
   
     this.filteredStates = this.stateCtrl.valueChanges

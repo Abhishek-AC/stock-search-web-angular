@@ -78,8 +78,9 @@ export class DetailsComponent implements OnInit {
                         this.summaryTabCharts = data['summaryTabCharts'];
                         this.smaVolume = data['sma_volume'];
                         this.smaOHLC = data['sma_ohlc'];
-                        this.graphColor = data['change'] >= 0 ? 'green' : 'red';
+                        this.graphColor = this.details['change'] >= 0 ? 'green' : 'red';
                         this.isLoading = false;
+                        
                         this.chartOptionsSummaryChart = {
                             rangeSelector: {
                                 enabled: false
@@ -202,6 +203,7 @@ export class DetailsComponent implements OnInit {
         this.modalService.open(content);
     }
     openBuyModal(content) {
+        this.quantity = 0;
         this.workingModal = this.modalService.open(content);
     }
     buyStockFunc() {
@@ -285,7 +287,8 @@ export class DetailsComponent implements OnInit {
     }
 
     updateDetails() {
-        if (this.details['marketStatus'] == 'open') {
+        
+        if (this.details != null && this.details['marketStatus'] == 'open') {
             this._http.getAllDetailsRepeat(this.ticker)
                 .pipe(
                     debounceTime(350)

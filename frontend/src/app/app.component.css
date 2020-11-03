@@ -1,4 +1,4 @@
 .main-class {
-    min-height: calc(100vh - 52px);
     padding-bottom: 20px;
+    min-height: calc(100vh - 52px);
 }

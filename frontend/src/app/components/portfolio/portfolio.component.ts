@@ -65,6 +65,7 @@ export class PortfolioComponent implements OnInit {
   }
 
   openBuyModal(index, content) {
+    this.stockQuantity = 0;
     this.currentStockIndex = index;
     this.workingModal = this.modalService.open(content);
   }
@@ -109,6 +110,7 @@ export class PortfolioComponent implements OnInit {
   }
 
   openSellModal(index, content) {
+    this.stockQuantity = 0;
     this.currentStockIndex = index;
     this.workingModal = this.modalService.open(content);
   }
