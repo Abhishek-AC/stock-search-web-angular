@@ -29,7 +29,7 @@ export class AutocompleteService {
   }
 
   getAllDetails(ticker: string) {
-    var response = this.httpClient.get(this.apiURLDetails + ticker)
+    var response = this.httpClient.get(this.apiURLDetails + ticker + '&hitNumber=first')
     .pipe(
       debounceTime(400),
       map(
@@ -38,6 +38,20 @@ export class AutocompleteService {
             data.length != 0 ? data as any[] : [{"error": "Invalid key"} as any]
           );
 
+        }
+      )
+    );
+    return response;
+  }
+  getAllDetailsRepeat(ticker: string) {
+    var response = this.httpClient.get(this.apiURLDetails + ticker + '&hitNumber=second')
+    .pipe(
+      debounceTime(400),
+      map(
+        (data: any) => {
+          return (
+            data.length != 0 ? data as any[] : [{"error": "Invalid Key"} as any]
+          );
         }
       )
     );
