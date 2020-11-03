@@ -14,12 +14,14 @@ export class WatchlistComponent implements OnInit {
   watchlistLocalStorage: Object = {};
   watchlistKeys : string[];
   watchlistPriceData : Object = {};
+  showAlert : boolean = true;
 
   ngOnInit(): void {
 
     this.watchlistLocalStorage = JSON.parse(localStorage.getItem("Watchlist"));
 
     if (this.watchlistLocalStorage != null && Object.keys(this.watchlistLocalStorage).length!= 0)  {
+      this.showAlert = false;
       this.watchlistKeys = Object.keys(this.watchlistLocalStorage);
       // call the service
       this._http.getWatchlistData(this.watchlistKeys)
@@ -37,6 +39,7 @@ export class WatchlistComponent implements OnInit {
         })
     }
     else {
+      this.showAlert = true;
       this.isLoading = false;
     }
   }
@@ -44,6 +47,12 @@ export class WatchlistComponent implements OnInit {
   removeTickerFromWatchList(ticker) {
     delete this.watchlistLocalStorage[ticker];
     localStorage.setItem("Watchlist", JSON.stringify(this.watchlistLocalStorage));
+    if(Object.keys(this.watchlistLocalStorage).length == 0){
+      this.showAlert = true;
+    }
+    else {
+      this.showAlert = false;
+    }
   }
 
   navigateToDetails(ticker) {
