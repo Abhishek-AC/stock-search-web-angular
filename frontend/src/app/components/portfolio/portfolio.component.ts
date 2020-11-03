@@ -18,6 +18,7 @@ export class PortfolioComponent implements OnInit {
   workingModal;
   currentStockIndex: number;
   stockQuantity: number = 0;
+  showAlert : boolean = true;
 
   constructor(private _http: AutocompleteService, private config: NgbModalConfig, private modalService: NgbModal, private _router: Router) { }
 
@@ -25,6 +26,7 @@ export class PortfolioComponent implements OnInit {
     this.portfolioLocalElements = JSON.parse(localStorage.getItem("Portfolio"));
 
     if (this.portfolioLocalElements != null && Object.keys(this.portfolioLocalElements).length != 0) {
+      this.showAlert = false;
       var tickers_list = Object.keys(this.portfolioLocalElements);
       this._http.getWatchlistData(tickers_list)
         .pipe(
@@ -54,6 +56,7 @@ export class PortfolioComponent implements OnInit {
         })
     }
     else {
+      this.showAlert = true;
       this.isLoading = false;
     }
   }
@@ -157,6 +160,14 @@ export class PortfolioComponent implements OnInit {
       this.portfolioElementsToDisplay[this.currentStockIndex]['totalCost'] = currentPortfolioData['totalAmountShares'];
       this.portfolioElementsToDisplay[this.currentStockIndex]['marketValue'] = parseFloat((currentPortfolioData['noOfStocks'] * this.portfolioElementsToDisplay[this.currentStockIndex]['last']).toFixed(2));
     }
+
+    if(Object.keys(JSON.parse(localStorage.getItem("Portfolio"))).length == 0){
+      this.showAlert = true;
+    }
+    else {
+      this.showAlert = false;
+    }
+
     this.workingModal.close();
   }
 }

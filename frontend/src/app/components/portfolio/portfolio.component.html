@@ -10,6 +10,9 @@
     </div>
 
     <ng-container *ngIf="!isLoading">
+        <ngb-alert [dismissible]="false" *ngIf="showAlert" class="text-center" type="warning">
+            Currently you don't have any stock.
+        </ngb-alert>
     <div *ngFor="let i of portfolioElementsToDisplay; index as index">
         <div class="card my-3">
             <div class="card-header cursor-type"
