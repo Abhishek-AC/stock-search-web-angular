@@ -96,12 +96,14 @@ app.get('/api/details', async (req, res) => {
   var newsApiKey = '3a67c2b7713c47cf8e309fd9c1fc2b35';
 
   var ticker = req.query.ticker;
+  var hitNumber = req.query.hitNumber;
+
   var route;
   var result = {};
   var details = {};
   var incorrectTicker = true;
   const monthNames = ["", "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+    "July", "August", "September", "October", "November", "December"
   ];
 
   route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '?token=' + token;
@@ -118,7 +120,7 @@ app.get('/api/details', async (req, res) => {
       result.details = details
       startDate = response.data.startDate;
       description = response.data.description;
-  
+
     }, (error) => {
       result['error'] = "Incorrect Ticker Symbol";
       incorrectTicker = false;
@@ -138,7 +140,7 @@ app.get('/api/details', async (req, res) => {
         var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
         var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0')
           + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
-        
+
         var lastTimestamp = new Date(response.data[0].timestamp);
         var lastMinutes = lastTimestamp.getMinutes().toString().padStart(2, '0');
         var lastHours = lastTimestamp.getHours().toString().padStart(2, '0');
@@ -165,7 +167,7 @@ app.get('/api/details', async (req, res) => {
         if (changeMarketStatus > 60) {
           temp.marketStatus = 'close';
           temp.lastTimestamp = lastDate;
-          
+
           var chartDate = new Date(response.data[0].timestamp);
 
           startDate = chartDate.getFullYear() + "-" + (chartDate.getMonth() + 1).toString().padStart(2, '0') + "-" + chartDate.getDate().toString().padStart(2, '0');
@@ -190,31 +192,33 @@ app.get('/api/details', async (req, res) => {
 
     var newsArticles = []
 
-    route = 'https://newsapi.org/v2/everything?apiKey=' + newsApiKey + '&q=' + ticker;
-    await axios.get(route)
-      .then((response) => {
-        var newsDump = response.data.articles;
-        for (var i = 0; i < newsDump.length; ++i) {
-          if (newsDump[i].title != null && newsDump[i].url != null && newsDump[i].urlToImage && newsDump[i].publishedAt != null) {
-            let publishedDate = monthNames[newsDump[i].publishedAt.slice(5,7)] + " " + newsDump[i].publishedAt.slice(8,10) + ", " + newsDump[i].publishedAt.slice(0,4);
-            var newsData = {
-              'title': newsDump[i].title,
-              'url': newsDump[i].url,
-              'urlToImage': newsDump[i].urlToImage,
-              'publishedAt': publishedDate,
-              'source': newsDump[i].source.name,
-              'description': newsDump[i].description
+    if (hitNumber == 'first') {
+      route = 'https://newsapi.org/v2/everything?apiKey=' + newsApiKey + '&q=' + ticker;
+      await axios.get(route)
+        .then((response) => {
+          var newsDump = response.data.articles;
+          for (var i = 0; i < newsDump.length; ++i) {
+            if (newsDump[i].title != null && newsDump[i].url != null && newsDump[i].urlToImage && newsDump[i].publishedAt != null) {
+              let publishedDate = monthNames[newsDump[i].publishedAt.slice(5, 7)] + " " + newsDump[i].publishedAt.slice(8, 10) + ", " + newsDump[i].publishedAt.slice(0, 4);
+              var newsData = {
+                'title': newsDump[i].title,
+                'url': newsDump[i].url,
+                'urlToImage': newsDump[i].urlToImage,
+                'publishedAt': publishedDate,
+                'source': newsDump[i].source.name,
+                'description': newsDump[i].description
+              }
+              newsArticles.push(newsData)
             }
-            newsArticles.push(newsData)
           }
-        }
-        result.newsArticles = newsArticles
-      },
-        (error) => {
-          console.log(error);
-        });
+          result.newsArticles = newsArticles
+        },
+          (error) => {
+            console.log(error);
+          });
+    }
+
     route = 'https://api.tiingo.com/iex/' + ticker + '/prices?startDate=' + startDate + '&resampleFreq=4min&token=' + token;
-    
 
     await axios.get(route)
       .then((response) => {
@@ -231,31 +235,32 @@ app.get('/api/details', async (req, res) => {
           console.log(error);
         });
 
-    var startDateLastTwoYears = new Date(new Date(startDateObject).setFullYear(new Date().getFullYear() - 2));
+    if (hitNumber == 'first') {
+      var startDateLastTwoYears = new Date(new Date(startDateObject).setFullYear(new Date().getFullYear() - 2));
 
-    startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
+      startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
 
-  
-    route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=daily&token=' + token;
-    
-    await axios.get(route)
-      .then((response) => {
-        var historicalData = response.data;
-        var sma_volume = [];
-        var sma_ohlc = [];
-        for (var i = 0; i < historicalData.length; i++) {
-          var utcDate = new Date(historicalData[i].date);
-          utcDate = utcDate.getTime();
-          sma_ohlc.push([utcDate, historicalData[i].open, historicalData[i].high, historicalData[i].low, historicalData[i].close]);
-          sma_volume.push([utcDate, historicalData[i].volume]);
-        }  
-        result.sma_volume = sma_volume;
-        result.sma_ohlc = sma_ohlc;
-      },
-        (error) => {
-          console.log(error);
-        });
 
+      route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=daily&token=' + token;
+
+      await axios.get(route)
+        .then((response) => {
+          var historicalData = response.data;
+          var sma_volume = [];
+          var sma_ohlc = [];
+          for (var i = 0; i < historicalData.length; i++) {
+            var utcDate = new Date(historicalData[i].date);
+            utcDate = utcDate.getTime();
+            sma_ohlc.push([utcDate, historicalData[i].open, historicalData[i].high, historicalData[i].low, historicalData[i].close]);
+            sma_volume.push([utcDate, historicalData[i].volume]);
+          }
+          result.sma_volume = sma_volume;
+          result.sma_ohlc = sma_ohlc;
+        },
+          (error) => {
+            console.log(error);
+          });
+    }
     res.status(200).send(result);
   }
   else {
@@ -286,18 +291,18 @@ app.get('/api/autocomplete', async (req, res) => {
   res.send(result);
 });
 
-app.get('/api/watchlist', async(req, res) => {
+app.get('/api/watchlist', async (req, res) => {
 
   var tickers = [];
   tickers = req.query.q;
   var token = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
   var route = 'https://api.tiingo.com/iex/?tickers=';
   var result = {};
-  if(typeof(tickers) === 'string') {
+  if (typeof (tickers) === 'string') {
     route += tickers + ',' + '&token=' + token;
   }
   else {
-    for(var i = 0; i < tickers.length-1; ++i)
+    for (var i = 0; i < tickers.length - 1; ++i)
       route += tickers[i] + ','
     route += tickers[i] + '&token=' + token;
   }
