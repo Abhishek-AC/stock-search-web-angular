@@ -1,0 +1,72 @@
+.test_col {
+    /* border: 1px solid red; */
+}
+.test_row {
+    /* border: 1px solid green; */
+}
+
+.ticker-name {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.company-name {
+    font-size: 20px;
+    font-weight: 500;
+    padding-top: 1%;
+}
+
+.exchange-code {
+    font-size: small;
+}
+
+.last-price {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.change {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.green-text {
+    color: green;
+}
+.red-text {
+    color: red;
+}
+
+.market-open {
+    display: inline-block;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    /* color: green; */
+}
+
+.market-close {
+    display: inline-block;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    /* color: red; */
+}
+
+.star-icon {
+    position: relative;
+    bottom: 0.5em;
+}
+.star-icon a, a:hover, a:focus, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+.here a:hover {
+    color: #007BFF; 
+    text-decoration: underline;
+}
+
+.hover-card:hover {
+    cursor: pointer;
+}

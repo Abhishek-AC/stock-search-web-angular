@@ -1,0 +1,35 @@
+.search {
+    margin-top: 10%;
+    font-size: 58px;
+    font-weight: bolder;
+    margin-bottom: 4%;
+}
+.form-control {
+    border: 2px solid #7852FF !important;
+}
+.form-control:focus {
+    border-color: none !important;
+    box-shadow: none !important;
+}
+
+.search-form {
+    margin-left: 40%;
+}
+
+.mat-autocomplete-panel {
+    margin-left: 18px;
+    margin-right: 40px;
+    margin-top: -8px;
+}
+.fa {
+    color: #7852FF
+}
+/* clears the 'X' from Internet Explorer */
+input[type=search]::-ms-clear {  display: none; width : 0; height: 0; }
+input[type=search]::-ms-reveal {  display: none; width : 0; height: 0; }
+
+/* clears the 'X' from Chrome */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration { display: none; }

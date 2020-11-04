@@ -1,0 +1,38 @@
+test_col {
+    /* border: 1px solid red; */
+}
+.test_row {
+    /* border: 1px solid green; */
+}
+
+.container {
+    /* border: 1px solid red; */
+}
+
+.card {
+    /* border: 1px solid blue; */
+}
+
+.watchlist-text {
+    font-size: 33px;
+    font-weight: 500;
+}
+
+.last-price {
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.company-name {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.change {
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.cursor-type:hover {
+    cursor: pointer;
+}

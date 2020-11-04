@@ -1,0 +1,47 @@
+<html>
+
+<head>
+</head>
+
+<body>
+  <div class="search text-center">
+    STOCK SEARCH
+  </div>
+
+  <form>
+
+    <div class="container">
+
+      <div class="row justify-content-center">
+
+        <div class="row no-gutters">
+          <div class="col-md-12 col-sm-12">
+            <input class="form-control rounded-pill pr-4 pl-3" type="search" placeholder="Enter stock name"
+              [matAutocomplete]="auto" [formControl]="stateCtrl">
+
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option *ngIf="isLoading" class="is-loading">
+                <mat-spinner diameter="50"></mat-spinner>
+              </mat-option>
+              <ng-container *ngIf="!isLoading">
+                <mat-option *ngFor="let state of autoComplete" [value]="state">
+                  <span style="font-weight: bold;">{{state.ticker.toUpperCase()}}</span> |
+                  <small>{{state.name}}</small>
+                </mat-option>
+              </ng-container>
+            </mat-autocomplete>
+
+          </div>
+          <div class="col">
+            <button class="btn btn-outline-light text-dark border-0 ml-n5" type="button" (click)="getDetails()">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</body>
+
+</html>
