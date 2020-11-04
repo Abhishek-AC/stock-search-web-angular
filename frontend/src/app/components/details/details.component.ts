@@ -72,8 +72,33 @@ export class DetailsComponent implements OnInit {
                         this.isLoading = false;
                     }
                     else {
+                        var nfObject = new Intl.NumberFormat('en-US');
+                        
                         this.details = data['details'];
+                        this.details['last'] = nfObject.format(this.details['last']);
+                        this.details['change'] = nfObject.format(this.details['change']);
+                        this.details['changePercentage'] = nfObject.format(this.details['changePercentage']);
+
                         this.summary = data['summary'];
+                        this.summary['highPrice'] = nfObject.format(this.summary['highPrice']);
+                        this.summary['lowPrice'] = nfObject.format(this.summary['lowPrice']);
+                        this.summary['openPrice'] = nfObject.format(this.summary['openPrice']);
+                        this.summary['prevClose'] = nfObject.format(this.summary['prevClose']);
+                        this.summary['volume'] = nfObject.format(this.summary['volume']);
+
+
+                        if (this.details['marketStatus'] == 'open') {
+                            if (this.summary['midPrice'] != '-')
+                                this.summary['midPrice'] = nfObject.format(this.summary['midPrice']);
+                            if (this.summary['askPrice'] != '-')
+                                this.summary['askPrice'] = nfObject.format(this.summary['askPrice']);
+                            if (this.summary['askSize'] != '-')
+                                this.summary['askSize'] = nfObject.format(this.summary['askSize']);
+                            if (this.summary['bidSize'] != '-')
+                                this.summary['bidSize'] = nfObject.format(this.summary['bidSize']);
+                            if (this.summary['bidPrice'] != '-')
+                                this.summary['bidPrice'] = nfObject.format(this.summary['bidPrice']);
+                        }
                         this.stockNews = data['newsArticles'];
                         this.summaryTabCharts = data['summaryTabCharts'];
                         this.smaVolume = data['sma_volume'];
@@ -303,7 +328,6 @@ export class DetailsComponent implements OnInit {
                         this.tickerInvalid = false;
                     }
                     else {
-                        console.log('I am repeating after 15 seconds');
                         this.details = data['details'];
                         this.summary = data['summary'];
                         this.summaryTabCharts = data['summaryTabCharts'];

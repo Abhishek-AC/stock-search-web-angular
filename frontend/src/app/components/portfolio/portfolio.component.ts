@@ -151,7 +151,6 @@ export class PortfolioComponent implements OnInit {
     var currentQuantity = currentPortfolioData[this.portfolioElementsToDisplay[this.currentStockIndex]['ticker']]['noOfStocks'];
     if (currentQuantity == 0) {
       delete currentPortfolioData[this.portfolioElementsToDisplay[this.currentStockIndex]['ticker']];
-      console.log(currentPortfolioData);
       localStorage.setItem("Portfolio", JSON.stringify(currentPortfolioData));
       this.portfolioElementsToDisplay.splice(this.currentStockIndex, 1);
     }

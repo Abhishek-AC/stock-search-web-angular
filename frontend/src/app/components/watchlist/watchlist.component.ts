@@ -56,7 +56,6 @@ export class WatchlistComponent implements OnInit {
   }
 
   navigateToDetails(ticker) {
-    console.log(ticker);
     this._router.navigate(['/details', ticker]);
   }
 }
