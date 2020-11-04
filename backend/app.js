@@ -10,6 +10,7 @@ const axios = require("axios");
 // import cors
 var cors = require('cors');
 
+
 // Import body parser
 const bodyParser = require('body-parser');
 const { last } = require('lodash');
@@ -42,59 +43,14 @@ app.get('/', (req, res) => {
   })
 });
 
-
-
-/*
-
-Endpoint for stock details 
-
-Route: /api/details 
-Query Parameter: ticker symbol
-
-Return JSON 
-- key 'details' will contain values from A.1 and A.2 
-  - ticker 
-  - companyName
-  - exchangeCode
-  - lastPrice
-  - change
-  - changePercentage
-  - marketStatus
-  - currentTimestamp
-  - lastTimestamp only if market close 
-
-depending on the marketStatus open/close summary will contain varied values 
-- key 'summary'
-  - highPrice
-  - lowPrice 
-  - openPrice
-  - prevClose
-  - volume
-  - startDate
-  - decsription
-  if market open 
-  - midPrice 
-  - askPrice
-  - askSize
-  - bidPrice
-  - bidSize
-
-- key 'stockCharts'
-  - list of list
-
-- key 'news'
-  - publisher 
-  - publishedDate
-  - title 
-  - description
-  - url
-*/
-
 app.get('/api/details', async (req, res) => {
   // AC would like to do something sophiscticated here
-  var token = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
-  var newsApiKey = '3a67c2b7713c47cf8e309fd9c1fc2b35';
+  var token1 = '2e60e48782d8be49b0f9e7b9a3b627bc50bdc58d';
+  var token2 = 'b8b5564eb1a60ad7803ab58cec0b21f14eeced67';
+  var token3 = '991b7b327cc36f95366e2eeee9d33bdeff6798c0';
 
+  var newsApiKey = '3a67c2b7713c47cf8e309fd9c1fc2b35';
+  
   var ticker = req.query.ticker;
   var hitNumber = req.query.hitNumber;
 
@@ -106,7 +62,7 @@ app.get('/api/details', async (req, res) => {
     "July", "August", "September", "October", "November", "December"
   ];
 
-  route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '?token=' + token;
+  route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '?token=' + token1;
 
   var startDate, description, startDateObject;
 
@@ -127,32 +83,34 @@ app.get('/api/details', async (req, res) => {
     });
 
   if (incorrectTicker) {
-    route = 'https://api.tiingo.com/iex?tickers=' + ticker + '&token=' + token;
+    route = 'https://api.tiingo.com/iex?tickers=' + ticker + '&token=' + token2;
     await axios.get(route)
       .then((response) => {
         var change = response.data[0].last - response.data[0].prevClose;
-
+        
         var currentTimestamp = new Date();
+
         var changeMarketStatus = (currentTimestamp - new Date(response.data[0].timestamp)) / 1000;
 
-        var currentMinutes = currentTimestamp.getMinutes().toString().padStart(2, '0');
-        var currentHours = currentTimestamp.getHours().toString().padStart(2, '0');
-        var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
-        var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0')
-          + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
+        // var currentMinutes = currentTimestamp.getMinutes().toString().padStart(2, '0');
+        // var currentHours = currentTimestamp.getHours().toString().padStart(2, '0');
+        // var currentSeconds = currentTimestamp.getSeconds().toString().padStart(2, '0');
+        // var date = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (currentTimestamp.getDate()).toString().padStart(2, '0')
+        //   + " " + currentHours + ":" + currentMinutes + ":" + currentSeconds;
+        
 
-        var lastTimestamp = new Date(response.data[0].timestamp);
-        var lastMinutes = lastTimestamp.getMinutes().toString().padStart(2, '0');
-        var lastHours = lastTimestamp.getHours().toString().padStart(2, '0');
-        var lastSeconds = lastTimestamp.getSeconds().toString().padStart(2, '0');
-        var lastDate = lastTimestamp.getFullYear() + "-" + (lastTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (lastTimestamp.getDate()).toString().padStart(2, '0')
-          + " " + lastHours + ":" + lastMinutes + ":" + lastSeconds;
+        // var lastTimestamp = new Date(response.data[0].timestamp);
+        // var lastMinutes = lastTimestamp.getMinutes().toString().padStart(2, '0');
+        // var lastHours = lastTimestamp.getHours().toString().padStart(2, '0');
+        // var lastSeconds = lastTimestamp.getSeconds().toString().padStart(2, '0');
+        // var lastDate = lastTimestamp.getFullYear() + "-" + (lastTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + (lastTimestamp.getDate()).toString().padStart(2, '0')
+        //   + " " + lastHours + ":" + lastMinutes + ":" + lastSeconds;
 
         var temp = {
           'last': response.data[0].last,
           'change': parseFloat(change.toFixed(2)),
           'changePercentage': parseFloat(((change * 100) / (response.data[0].prevClose)).toFixed(2)),
-          'currentTimestamp': date,
+          'currentTimestamp': currentTimestamp,
         }
         var summary = {
           'highPrice': response.data[0].high,
@@ -166,7 +124,7 @@ app.get('/api/details', async (req, res) => {
 
         if (changeMarketStatus > 60) {
           temp.marketStatus = 'close';
-          temp.lastTimestamp = lastDate;
+          temp.lastTimestamp = response.data[0].timestamp;
 
           var chartDate = new Date(response.data[0].timestamp);
 
@@ -218,7 +176,7 @@ app.get('/api/details', async (req, res) => {
           });
     }
 
-    route = 'https://api.tiingo.com/iex/' + ticker + '/prices?startDate=' + startDate + '&resampleFreq=4min&token=' + token;
+    route = 'https://api.tiingo.com/iex/' + ticker + '/prices?startDate=' + startDate + '&resampleFreq=4min&token=' + token3;
 
     await axios.get(route)
       .then((response) => {
@@ -241,7 +199,7 @@ app.get('/api/details', async (req, res) => {
       startDateLastTwoYears = startDateLastTwoYears.getFullYear() + "-" + (startDateLastTwoYears.getMonth() + 1).toString().padStart(2, '0') + "-" + startDateLastTwoYears.getDate().toString().padStart(2, '0');
 
 
-      route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=daily&token=' + token;
+      route = 'https://api.tiingo.com/tiingo/daily/' + ticker + '/prices?startDate=' + startDateLastTwoYears + '&endDate=' + startDate + '&resampleFreq=daily&token=' + token3;
 
       await axios.get(route)
         .then((response) => {
@@ -325,7 +283,8 @@ app.get('/api/watchlist', async (req, res) => {
   res.status(200).send(result);
 });
 
+var port = process.env.PORT || 3000;
 // Expose endpoints to port 3000
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("Listening to port 3000");
 });
