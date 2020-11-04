@@ -1,5 +1,5 @@
 node_modules/
 .DS_Store
-frontend-deploy/
+frontend-deploy/dist/
 backend/.elasticbeanstalk
 backend/dist
