@@ -6,9 +6,9 @@ import { debounceTime, map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AutocompleteService {
-  apiURLAutoComplete: string = 'http://localhost:3000/api/autocomplete?q=';
-  apiURLDetails: string = 'http://localhost:3000/api/details?ticker=';
-  apiWatchlist: string = 'http://localhost:3000/api/watchlist?';
+  apiURLAutoComplete: string = 'http://csci-571-hw8-backend.eba-wusqbhc9.us-east-1.elasticbeanstalk.com/api/autocomplete?q=';
+  apiURLDetails: string = 'http://csci-571-hw8-backend.eba-wusqbhc9.us-east-1.elasticbeanstalk.com/api/details?ticker=';
+  apiWatchlist: string = 'http://csci-571-hw8-backend.eba-wusqbhc9.us-east-1.elasticbeanstalk.com/api/watchlist?';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -37,7 +37,6 @@ export class AutocompleteService {
           return (
             data.length != 0 ? data as any[] : [{"error": "Invalid key"} as any]
           );
-
         }
       )
     );

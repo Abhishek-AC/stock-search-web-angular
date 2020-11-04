@@ -78,7 +78,9 @@ export class DetailsComponent implements OnInit {
                         this.summaryTabCharts = data['summaryTabCharts'];
                         this.smaVolume = data['sma_volume'];
                         this.smaOHLC = data['sma_ohlc'];
-                        this.graphColor = this.details['change'] >= 0 ? 'green' : 'red';
+                        this.details['currentTimestamp'] = this.formatDate(new Date());
+                        this.details['lastTimestamp'] = this.formatDate(new Date(this.details['lastTimestamp']));
+                        this.graphColor = this.details['change'] > 0 ? 'green' : this.details['change'] < 0 ? 'red' : 'black' ;
                         this.isLoading = false;
                         
                         this.chartOptionsSummaryChart = {
@@ -86,7 +88,7 @@ export class DetailsComponent implements OnInit {
                                 enabled: false
                             },
                             title: {
-                                text: this.details["ticker"]
+                                text: this.details['ticker']
                             },
                             yAxis: {
                                 labels: {
@@ -105,6 +107,7 @@ export class DetailsComponent implements OnInit {
                             },
                             series: [
                                 {
+                                    id: this.details['ticker'],
                                     type: 'zigzag',
                                     tooltip: {
                                         valueDecimals: 2
@@ -170,8 +173,9 @@ export class DetailsComponent implements OnInit {
                                 data: this.smaVolume,
                                 yAxis: 1
                             }, {
+                                id: this.details['ticker'],
                                 type: 'vbp',
-                                linkedTo: this.details["ticker"],
+                                linkedTo: this.details['ticker'],
                                 params: {
                                     volumeSeriesID: 'volume'
                                 },
@@ -182,8 +186,9 @@ export class DetailsComponent implements OnInit {
                                     enabled: false
                                 }
                             }, {
+                                id: this.details['ticker'],
                                 type: 'sma',
-                                linkedTo: this.details["ticker"],
+                                linkedTo: this.details['ticker'],
                                 zIndex: 1,
                                 marker: {
                                     enabled: false
@@ -307,5 +312,14 @@ export class DetailsComponent implements OnInit {
                 }
                 )
         }
+    }
+
+    formatDate(date) {
+        var minutes = date.getMinutes().toString().padStart(2, '0');
+        var hours = date.getHours().toString().padStart(2, '0');
+        var seconds = date.getSeconds().toString().padStart(2, '0');
+        var formatedDate = date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, '0') + "-" + (date.getDate()).toString().padStart(2, '0')
+          + " " + hours + ":" + minutes + ":" + seconds;
+        return formatedDate;
     }
 }

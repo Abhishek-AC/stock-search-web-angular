@@ -116,7 +116,7 @@
 
         <div class="row align-items-center test_row mt-3 mt-md-1">
             <div class="col d-flex justify-content-center test_col">
-                <div *ngIf="(details['marketStatus'] == 'Open');then openBlock else closeBlock"></div>
+                <div *ngIf="(details['marketStatus'] == 'open');then openBlock else closeBlock"></div>
                 <ng-template #openBlock>
                     <div class="market-open alert alert-success text-center">
                         Market is {{details["marketStatus"]}}
