@@ -113,10 +113,10 @@ app.get('/api/details', async (req, res) => {
           'currentTimestamp': currentTimestamp,
         }
         var summary = {
-          'highPrice': response.data[0].high,
-          'lowPrice': response.data[0].low,
-          'openPrice': response.data[0].open,
-          'prevClose': response.data[0].prevClose,
+          'highPrice': (response.data[0].high).toFixed(2),
+          'lowPrice': (response.data[0].low).toFixed(2),
+          'openPrice': (response.data[0].open).toFixed(2),
+          'prevClose': (response.data[0].prevClose).toFixed(2),
           'volume': response.data[0].volume,
           'startDate': startDate,
           'description': description
@@ -133,11 +133,11 @@ app.get('/api/details', async (req, res) => {
         }
         else {
           temp.marketStatus = 'open';
-          summary.midPrice = response.data[0].mid == null ? '-' : response.data[0].mid;
-          summary.askPrice = response.data[0].askPrice == null ? '-' : response.data[0].askPrice;
-          summary.askSize = response.data[0].askSize == null ? '-' : response.data[0].askSize;
-          summary.bidSize = response.data[0].bidSize == null ? '-' : response.data[0].bidSize;
-          summary.bidPrice = response.data[0].bidPrice == null ? '-' : response.data[0].bidPrice;
+          summary.midPrice = response.data[0].mid == null ? '-' : (response.data[0].mid).toFixed(2);
+          summary.askPrice = response.data[0].askPrice == null ? '-' : (response.data[0].askPrice).toFixed(2);
+          summary.askSize = response.data[0].askSize == null ? '-' : (response.data[0].askSize).toFixed(2);
+          summary.bidSize = response.data[0].bidSize == null ? '-' : (response.data[0].bidSize).toFixed(2);
+          summary.bidPrice = response.data[0].bidPrice == null ? '-' : (response.data[0].bidPrice).toFixed(2);
           startDate = currentTimestamp.getFullYear() + "-" + (currentTimestamp.getMonth() + 1).toString().padStart(2, '0') + "-" + currentTimestamp.getDate().toString().padStart(2, '0');
           startDateObject = currentTimestamp;
         }
