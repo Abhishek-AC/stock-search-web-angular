@@ -17,12 +17,28 @@ export class WatchlistComponent implements OnInit {
   showAlert : boolean = true;
 
   ngOnInit(): void {
+    this.renderWatchlist();
+  }
 
+  removeTickerFromWatchList(ticker) {
+    delete this.watchlistLocalStorage[ticker];
+    localStorage.setItem("Watchlist", JSON.stringify(this.watchlistLocalStorage));
+    this.renderWatchlist();
+  }
+
+  navigateToDetails(ticker) {
+    this._router.navigate(['/details', ticker]);
+  }
+
+
+  renderWatchlist() {
     this.watchlistLocalStorage = JSON.parse(localStorage.getItem("Watchlist"));
 
     if (this.watchlistLocalStorage != null && Object.keys(this.watchlistLocalStorage).length!= 0)  {
       this.showAlert = false;
       this.watchlistKeys = Object.keys(this.watchlistLocalStorage);
+      // sort the watchlist
+      this.watchlistKeys.sort()
       // call the service
       this._http.getWatchlistData(this.watchlistKeys)
       .pipe(
@@ -42,21 +58,5 @@ export class WatchlistComponent implements OnInit {
       this.showAlert = true;
       this.isLoading = false;
     }
-  }
-
-  removeTickerFromWatchList(ticker) {
-    delete this.watchlistLocalStorage[ticker];
-    localStorage.setItem("Watchlist", JSON.stringify(this.watchlistLocalStorage));
-    if(Object.keys(this.watchlistLocalStorage).length == 0){
-      this.showAlert = true;
-    }
-    else {
-      this.showAlert = false;
-    }
-  }
-
-  navigateToDetails(ticker) {
-    console.log(ticker);
-    this._router.navigate(['/details', ticker]);
   }
 }

@@ -34,11 +34,13 @@ export class DetailsComponent implements OnInit {
     smaOHLC: number[][];
     boughtString: string = '';
     removedString: string = '';
-    addedWatchlistString: string ='';
+    addedWatchlistString: string = '';
     watchlistString: string = '';
     buyTimeout;
     watchlistTimeout;
     showBuy: boolean = false;
+    lastPrice: number;
+    updateChart: boolean = true;
 
     Highcharts: typeof Highcharts = Highcharts;
 
@@ -72,17 +74,49 @@ export class DetailsComponent implements OnInit {
                         this.isLoading = false;
                     }
                     else {
+                        // change display as per requirement
+                        var nfObject = new Intl.NumberFormat('en-US');
+
                         this.details = data['details'];
+
+                        // storing the value of last price in a global variable that is in float
+                        this.lastPrice = this.details['last'];
+
+                        this.details['last'] = nfObject.format(this.details['last']);
+                        this.details['change'] = nfObject.format(this.details['change'].toFixed(2));
+                        this.details['changePercentage'] = nfObject.format(this.details['changePercentage'].toFixed(2));
+
                         this.summary = data['summary'];
+                        this.summary['highPrice'] = nfObject.format(this.summary['highPrice']);
+                        this.summary['lowPrice'] = nfObject.format(this.summary['lowPrice']);
+                        this.summary['openPrice'] = nfObject.format(this.summary['openPrice']);
+                        this.summary['prevClose'] = nfObject.format(this.summary['prevClose']);
+                        this.summary['volume'] = nfObject.format(this.summary['volume']);
+
+
+                        if (this.details['marketStatus'] == 'open') {
+                            if (this.summary['midPrice'] != '-')
+                                this.summary['midPrice'] = nfObject.format(this.summary['midPrice']);
+                            if (this.summary['askPrice'] != '-')
+                                this.summary['askPrice'] = nfObject.format(this.summary['askPrice']);
+                            if (this.summary['askSize'] != '-')
+                                this.summary['askSize'] = nfObject.format(this.summary['askSize']);
+                            if (this.summary['bidSize'] != '-')
+                                this.summary['bidSize'] = nfObject.format(this.summary['bidSize']);
+                            if (this.summary['bidPrice'] != '-')
+                                this.summary['bidPrice'] = nfObject.format(this.summary['bidPrice']);
+                        }
                         this.stockNews = data['newsArticles'];
                         this.summaryTabCharts = data['summaryTabCharts'];
                         this.smaVolume = data['sma_volume'];
                         this.smaOHLC = data['sma_ohlc'];
                         this.details['currentTimestamp'] = this.formatDate(new Date());
                         this.details['lastTimestamp'] = this.formatDate(new Date(this.details['lastTimestamp']));
-                        this.graphColor = this.details['change'] > 0 ? 'green' : this.details['change'] < 0 ? 'red' : 'black' ;
+                        this.graphColor = parseFloat(this.details['change']) > 0 ? 'green' : parseFloat(this.details['change']) < 0 ? 'red' : 'black';
                         this.isLoading = false;
-                        
+
+                        this.updateChart = false;
+
                         this.chartOptionsSummaryChart = {
                             rangeSelector: {
                                 enabled: false
@@ -114,7 +148,7 @@ export class DetailsComponent implements OnInit {
                                     },
                                     name: this.details["ticker"],
                                     data: this.summaryTabCharts,
-                                    color: this.graphColor,
+                                    color: this.graphColor
                                 }
                             ]
                         }
@@ -220,9 +254,9 @@ export class DetailsComponent implements OnInit {
         var portfolioData = JSON.parse(localStorage.getItem("Portfolio"));
         var stockPurchased: Object = {
             "companyName": this.details["name"],
-            "totalAmountShares": parseFloat((this.quantity * this.details["last"]).toFixed(2)),
+            "totalAmountShares": parseFloat((this.quantity * this.lastPrice).toFixed(2)),
             "noOfStocks": this.quantity,
-            "avgCostPerShare": this.details["last"]
+            "avgCostPerShare": this.lastPrice
         }
         if (portfolioData == null) {
             var stockPurchasedTemp: Object = {};
@@ -292,7 +326,7 @@ export class DetailsComponent implements OnInit {
     }
 
     updateDetails() {
-        
+
         if (this.details != null && this.details['marketStatus'] == 'open') {
             this._http.getAllDetailsRepeat(this.ticker)
                 .pipe(
@@ -303,11 +337,17 @@ export class DetailsComponent implements OnInit {
                         this.tickerInvalid = false;
                     }
                     else {
-                        console.log('I am repeating after 15 seconds');
+                        // console.log('UPDATING AFTER 15 SECONDS');
                         this.details = data['details'];
+                        this.details['currentTimestamp'] = this.formatDate(new Date());
+                        this.details['lastTimestamp'] = this.formatDate(new Date(this.details['lastTimestamp']));
                         this.summary = data['summary'];
                         this.summaryTabCharts = data['summaryTabCharts'];
-                        this.graphColor = this.details['change'] >= 0 ? 'green' : 'red';
+                        this.graphColor = parseFloat(this.details['change']) > 0 ? 'green' : parseFloat(this.details['change']) < 0 ? 'red' : 'black';
+                        this.chartOptionsSummaryChart.series[0]['data'] = this.summaryTabCharts;
+                        this.chartOptionsSummaryChart.series[0]['color'] = this.graphColor;
+                        this.chartOptionsSummaryChart.navigator.series['color'] = this.graphColor;
+                        this.updateChart = true;
                     }
                 }
                 )
@@ -319,7 +359,7 @@ export class DetailsComponent implements OnInit {
         var hours = date.getHours().toString().padStart(2, '0');
         var seconds = date.getSeconds().toString().padStart(2, '0');
         var formatedDate = date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, '0') + "-" + (date.getDate()).toString().padStart(2, '0')
-          + " " + hours + ":" + minutes + ":" + seconds;
+            + " " + hours + ":" + minutes + ":" + seconds;
         return formatedDate;
     }
 }
