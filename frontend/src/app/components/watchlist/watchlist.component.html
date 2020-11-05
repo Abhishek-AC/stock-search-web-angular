@@ -40,7 +40,7 @@
                                     <div
                                         [ngClass]="(watchlistPriceData[item.key]['change'] >= 0) ?'text-success':'text-danger'">
                                         <span class="last-price">
-                                            {{ watchlistPriceData[item.key]["last"] }}
+                                            {{ watchlistPriceData[item.key]["last"] | number:'1.2-2' }}
                                         </span>
                                     </div>
                                 </div>
@@ -73,8 +73,8 @@
                                                         d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
                                                 </svg>
                                             </span>
-                                            {{ watchlistPriceData[item.key]["change"] }}
-                                            ({{ watchlistPriceData[item.key]["changePercentage"] }}%)
+                                            {{ watchlistPriceData[item.key]["change"] | number:'1.2-2'}}
+                                            ({{ watchlistPriceData[item.key]["changePercentage"] | number:'1.2-2' }}%)
                                         </span>
                                     </div>
                                 </div>
