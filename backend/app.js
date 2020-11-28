@@ -163,6 +163,7 @@ app.get('/api/details', async (req, res) => {
                 'url': newsDump[i].url,
                 'urlToImage': newsDump[i].urlToImage,
                 'publishedAt': publishedDate,
+                'publishedAtUnformatted': newsDump[i].publishedAt,
                 'source': newsDump[i].source.name,
                 'description': newsDump[i].description
               }
